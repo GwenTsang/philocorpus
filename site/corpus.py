@@ -177,9 +177,27 @@ class Corpus:
         text=re.sub(r'\n{3,}','\n\n',text)
         if ident=='methode':
             first=text.find('## **1.1.');text=text[first:] if first>=0 else text
+        example_replacements={}
+        if ident=='methode':
+            from method_examples import prepare_examples
+            text,example_replacements=prepare_examples(text)
         if ident in ('plans','tableaux'):
             text=re.sub(r'(?m)^\*\*([^\n]+)\*\*\s*$',r'## \1',text)
         text=re.sub(r'(?m)^#{1,6}\s*(?:&nbsp;)?\s*$','',text)
+        example_diagram=None
+        if ident=='plans':
+            example=re.search(r'^\| « La croyance religieuse s’oppose-t-elle à la raison \? » \|[^\n]*\n(?:\|[^\n]*\n){4}',text,re.M)
+            if example:
+                rows=[[cell.strip() for cell in line.strip().strip('|').split('|')] for line in example.group().strip().splitlines()]
+                def content(cell):
+                    return render(re.sub(r'^\*\*(?:I|II|III)\.?\*\*\.?\s*','',cell)).strip()
+                template=Path(__file__).with_name('plan_variations.html').read_text()
+                example_diagram=template.replace('plan-variations-caption','plan-religion-caption').replace('class="plan-diagram"','class="plan-diagram plan-example"').replace('Deux chemins possibles pour faire évoluer les notions',html.escape(rows[0][0]))
+                contents=iter([content(rows[2][0]),content(rows[3][0]),content(rows[3][1]),content(rows[4][0])])
+                example_diagram=re.sub(r'(<strong>Partie (?:I|II possible|III)</strong>)(?:<span>.*?</span>)+',lambda m:m[1]+next(contents),example_diagram)
+                text=text[:example.start()]+'PHILOCORPUS_PLAN_RELIGION\n'+text[example.end():]
+            table = re.compile(r'^\| \(partie I\) Sens A de la notion 1 Sens A de la notion 2 \|.*\n\| :---: \| :---: \|\n\| \*\*\(partie II possible\)\*\* Sens B de la notion 1 Sens A de la notion 2 \| \*\*\(partie II possible\)\*\* Sens A de la notion 1 Sens B de la notion 2 \|\n\| \*\*\(partie III\)\*\* Sens B de la notion 1 Sens C de la notion 2 \|.*$', re.M)
+            text=table.sub('PHILOCORPUS_PLAN_VARIATIONS',text)
         tokens=MD.parse(text);toc=[];n=0
         for index,token in enumerate(tokens):
             if token.type=='heading_open':
@@ -189,5 +207,11 @@ class Corpus:
                 inline.children=MD.parseInline(inline.content)[0].children
                 token.attrSet('id',anchor);toc.append({'id':anchor,'title':plain(inline.content).strip(),'level':int(token.tag[1])});n+=1
         rendered=bleach.clean(MD.renderer.render(tokens,MD.options,{}),tags=TAGS,attributes={'a':['href','title'],'*':['id'],'th':['align'],'td':['align']},protocols=['http','https','mailto'],strip=True)
+        for marker,replacement in example_replacements.items():
+            rendered=rendered.replace(marker,replacement)
+        if example_diagram:
+            rendered=rendered.replace('<p>PHILOCORPUS_PLAN_RELIGION</p>',example_diagram)
+        if ident=='plans':
+            rendered=rendered.replace('<p>PHILOCORPUS_PLAN_VARIATIONS</p>',Path(__file__).with_name('plan_variations.html').read_text())
         result={'id':ident,'title':title,'description':desc,'html':rendered,'toc':toc,'filename':name}
         self.resource_cache[ident,stamp]=result;return result

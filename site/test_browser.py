@@ -21,7 +21,7 @@ with sync_playwright() as p:
  page.screenshot(path='/tmp/philosite-reader.png')
  for resource in data['resources']:
   page.goto(base+'/#ressource/'+resource['id']);page.wait_for_selector('.resource-prose');assert len(page.locator('.resource-prose').inner_text())>1000;assert page.locator('.toc a').count()>0
-  page.locator('.toc a').last.click();assert page.url.endswith('/#laboratoire/ressource/'+resource['id'])
+  page.locator('#methodToc summary').click();page.locator('.toc a').last.click();assert page.url.endswith('/#methode/ressource/'+resource['id'])
   if resource['id']=='tableaux':assert page.locator('.resource-prose table').count()>0
  page.goto(base+'/#explorer');page.wait_for_selector('svg.scatter');assert page.locator('svg.scatter circle').count()>0
  page.select_option('#expExam','AGREG externe');page.wait_for_timeout(200);assert page.locator('svg.scatter circle').count()<len(gold)

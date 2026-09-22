@@ -6,12 +6,12 @@ Depuis `/home/gwen/PhiloCorpus` :
 python3 -B site/server.py
 ```
 
-Ouvrir **http://127.0.0.1:8745** : la bibliothèque s’affiche directement. La méthode est une rubrique du Laboratoire. Le site est indépendant de l’atelier de correction (port 8742) et de l’ancienne bibliothèque (port 8741). Ctrl C arrête ce serveur. Il fonctionne localement, sans service distant ni clé API.
+Ouvrir **http://127.0.0.1:8745** : la bibliothèque s’affiche directement. La méthode dispose de son propre onglet principal. Le site est indépendant de l’atelier de correction (port 8742) et de l’ancienne bibliothèque (port 8741). Ctrl C arrête ce serveur. Il fonctionne localement, sans service distant ni clé API.
 
 ## Navigation
 
 - **Bibliothèque** : toutes les copies des deux collections, recherche dans les titres et le texte, filtres de type (dissertation/commentaire), concours, session, gold, avec ou sans note ; lecture par sections, scan à côté du texte, téléchargement Markdown/JSON et impression.
-- **Laboratoire → Méthode** : ressources intégrales, sommaires, tableaux et notes de bas de page. Les espaces de mise en page et l’ancien sommaire de l’export bureautique sont adaptés à la navigation web. Les fichiers sources sont préservés ; leur téléchargement direct n’est pas proposé.
+- **Méthode** : ressources intégrales, sommaires, tableaux et notes de bas de page. Les espaces de mise en page et l’ancien sommaire de l’export bureautique sont adaptés à la navigation web. Les fichiers sources sont préservés ; leur téléchargement direct n’est pas proposé.
 - **Laboratoire → Explorer le corpus** : dissertations gold, filtres par concours/session, nuage de points longueur-note et corrélation, proportions des sections et export des mesures CSV.
 
 ## Sources et mises à jour
@@ -99,3 +99,5 @@ L’onglet principal `#textes-philosophiques` présente les Markdown de `Textes_
 `philosophical_texts.py` contient les métadonnées des sept textes initiaux. Tout nouveau `.md` du dossier est inclus à la prochaine génération, avec son nom de fichier comme titre par défaut ; compléter les métadonnées pour renseigner auteur et langue. Le sommaire utilise les titres Markdown déjà présents. L’étendue de l’édition est précisée pour Comte (1re et 2e leçons) ; le lecteur n’affirme pas que toutes les œuvres sont intégrales ni dans leur langue de première publication.
 
 Vérification : `python3 -B site/test_works_browser.py` sur l’export servi au port 8746, ou avec `PHILOCORPUS_SITE_URL` pour le site publié.
+
+Les ressources de méthode utilisent `#methode/ressource/<id>`. Les anciennes adresses `#laboratoire/methode` et `#laboratoire/ressource/<id>` redirigent vers cette section indépendante.
