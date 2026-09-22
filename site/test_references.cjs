@@ -1,0 +1,15 @@
+const assert=require('node:assert/strict');
+const {referenceStatistics:stats}=require('./references.js');
+const copy=(n,grade,extra={})=>({dissertation:true,has_text:true,words:1000,grade,authors_status:'current',authors:n?[{id:'kant',count:n}]:[],warnings:[],...extra});
+const rows=[copy(0,0),copy(2,10),copy(4,20)];
+assert.equal(stats(rows).correlation,1);
+assert.equal(stats([copy(0,20),copy(2,10),copy(4,0)]).correlation,-1);
+assert.equal(stats(rows.slice(0,2)).correlation,null);
+assert.equal(stats([copy(1,10),copy(1,12),copy(1,14)]).correlation,null);
+assert.equal(stats([copy(1,10),copy(2,10),copy(3,10)]).correlation,null);
+assert.equal(stats(rows).rows[0].mentions,0);
+assert.equal(stats([copy(4,12,{words:2000})],'density').rows[0].x,2);
+assert.equal(stats([copy(4,12)],'distinct').rows[0].x,1);
+const excluded=stats([...rows,copy(2,null),copy(2,12,{authors_status:'stale'}),copy(2,12,{words:0}),copy(2,12,{warnings:['check']}),copy(2,12,{dissertation:false})]);
+assert.deepEqual(excluded.excluded,{grade:1,annotations:1,text:1,review:1});assert.equal(excluded.rows.length,3);
+console.log('OK corrélations, zéro, densité, auteurs distincts, exclusions et cas non calculables.');

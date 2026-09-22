@@ -1,0 +1,4 @@
+markdown-it-py==4.2.0
+mdit-py-plugins==0.6.1
+bleach==6.4.0
+PyMuPDF==1.28.2

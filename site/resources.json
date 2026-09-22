@@ -1,0 +1,26 @@
+[
+  {
+    "id": "methode",
+    "title": "Méthodologie de la dissertation",
+    "description": "Du sujet à la conclusion : construire une argumentation.",
+    "file": "Methodologie de la dissertation (Licence, Capes, Agreg).md"
+  },
+  {
+    "id": "plans",
+    "title": "Penser le plan",
+    "description": "Dialectique, approfondissement et articulation des thèses.",
+    "file": "Methodologie - remarques théoriques sur les PLANS.md"
+  },
+  {
+    "id": "anthologie",
+    "title": "Anthologie d’introductions",
+    "description": "Observer différentes façons de faire émerger un problème.",
+    "file": "Anthologie de dissertations de philosophie.md"
+  },
+  {
+    "id": "tableaux",
+    "title": "Arguments & contre-arguments",
+    "description": "Mettre les références à l’épreuve des difficultés.",
+    "file": "Dissertations_en_tableaux.md"
+  }
+]
