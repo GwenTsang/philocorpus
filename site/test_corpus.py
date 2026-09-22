@@ -19,6 +19,26 @@ class CorpusTests(unittest.TestCase):
         self.assertEqual(sections[-1]['key'],'partie_2')
         self.assertNotIn('conclusion',[s['key'] for s in sections])
         self.assertEqual(corpus.words(text),sum(corpus.words(s['text']) for s in sections))
+    def test_scan_placeholder_does_not_hide_real_transcription(self):
+        placeholder='# Copie\n*(Le PDF source est un scan sans texte extrait)*\n```json\n'+json.dumps({'ocr_status':'not_started','pages':[],'runs':[]})+'\n```'
+        self.assertTrue(corpus.is_scan_placeholder(placeholder))
+        self.assertFalse(corpus.is_scan_placeholder('Une dissertation sur le JSON.'))
+        oldroot,olddb=corpus.ROOT,corpus.DB
+        with tempfile.TemporaryDirectory() as tmp:
+            corpus.ROOT=Path(tmp);corpus.DB=Path(tmp)/'missing.sqlite3'
+            try:
+                d=Path(tmp)/'COPIES_without_notes'/'Copie';d.mkdir(parents=True)
+                (d/'metadata.json').write_text(json.dumps({'document_id':'scan','title':'Copie'}))
+                (d/'scan-source.md').write_text(placeholder)
+                c=corpus.Corpus();c.refresh()
+                self.assertFalse(c.docs['scan']['has_text']);self.assertIsNone(c.docs['scan']['words'])
+                self.assertEqual(c.docs['scan']['authors_status'],'unavailable')
+                (d/'transcription.md').write_text('Texte véritable de la dissertation.')
+                c.refresh();self.assertTrue(c.docs['scan']['has_text'])
+                self.assertEqual(c.docs['scan']['text'],'Texte véritable de la dissertation.')
+                self.assertEqual((d/'scan-source.md').read_text(),placeholder)
+            finally:corpus.ROOT,corpus.DB=oldroot,olddb
+
     def test_safe_html_and_word_definition(self):
         self.assertEqual(corpus.words("L'État *juste* et soi-même."),4)
         out=corpus.render('<img src=x onerror=alert(1)><script>alert(1)</script>[x](javascript:alert(1))')

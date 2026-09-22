@@ -68,9 +68,18 @@ def sections_from_state(state):
     start=min((b['offset'] for b in main),default=0)
     return result,'\n\n'.join(s['text'] for s in result) if result else clean(text[positions[start]:]),valid
 
+def is_scan_placeholder(text):
+    """Reconnaît la fiche générée pour un scan non transcrit, pas un vrai texte."""
+    if 'Le PDF source est un scan sans texte extrait' not in text:return False
+    match=re.search(r'```json\s*\n(.*?)\n```',text,re.S)
+    if not match:return False
+    try:data=json.loads(match.group(1))
+    except ValueError:return False
+    return isinstance(data,dict) and data.get('ocr_status')=='not_started' and data.get('pages')==[] and data.get('runs')==[]
+
 def load_authors(item):
     item.update(authors=[], author_mentions=[], authors_status='unavailable')
-    if not item['dissertation']:return
+    if not item['dissertation'] or not item['text']:return
     path=item['directory']/'annotations_references'/'automatic_authors.json'
     if not path.exists():return
     try:
@@ -128,7 +137,7 @@ class Corpus:
                 except ValueError:item['warnings'].append('Positions d’annotation invalides : transcription source affichée.')
             if not item['text']:
                 variants=sorted(set(d.glob('*.md'))|set((d/'transcriptions_md').glob('*.md')))
-                variants=[p for p in variants if p.name.lower()!='readme.md']
+                variants=[p for p in variants if p.name.lower()!='readme.md' and not is_scan_placeholder(p.read_text(encoding='utf-8-sig'))]
                 reference=d/(meta.get('reference_transcription') or '_')
                 variants.sort(key=lambda p:(p!=reference,'<span' in p.read_text(encoding='utf-8-sig'),str(p)))
                 if variants:
