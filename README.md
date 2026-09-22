@@ -33,6 +33,8 @@ git commit -m "Actualiser le corpus"
 git push origin main
 ```
 
+Après le push, déclencher un déploiement Vercel depuis GitHub (`gitSource` de type `github`, `repoId` 1381178495, `ref` `main`) sur le projet `prj_E2kpjKLrQbGWR7r0w0oSF4610En4`. Le déploiement depuis GitHub fonctionne ; le déclenchement automatique à chaque push nécessite de connecter ce dépôt dans les réglages Git du projet Vercel.
+
 La synchronisation préserve le dossier `.git`. Les ajouts locaux doivent avoir des métadonnées et une transcription reconnues par le corpus. Un simple ajout sur le PC ne modifie pas le site public : il faut exporter puis pousser les fichiers. Les changements de code se font dans le dossier `site` du corpus original avant export, pour éviter qu’un prochain export écrase une modification directe de `public`.
 
 ## Vérification
