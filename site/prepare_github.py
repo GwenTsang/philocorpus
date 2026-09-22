@@ -7,10 +7,11 @@ ROOT=HERE.parent
 TARGET=ROOT/'deployment'/'github'
 def main():
  TARGET.mkdir(parents=True,exist_ok=True)
- for name in ['public','site']:
+ for name in ['public','site','Textes_philosophiques']:
   if (TARGET/name).exists():shutil.rmtree(TARGET/name)
  shutil.copytree(ROOT/'deployment/vercel/public',TARGET/'public')
  shutil.copytree(HERE,TARGET/'site',ignore=shutil.ignore_patterns('__pycache__','*.pyc'))
+ shutil.copytree(ROOT/'Textes_philosophiques',TARGET/'Textes_philosophiques')
  config={'$schema':'https://openapi.vercel.sh/vercel.json','framework':None,'buildCommand':'','installCommand':'','outputDirectory':'public','headers':[{'source':'/(.*)','headers':[{'key':'X-Content-Type-Options','value':'nosniff'}]}]}
  (TARGET/'vercel.json').write_text(json.dumps(config,indent=2)+'\n')
  (TARGET/'.gitignore').write_text('.vercel/\n.env\n.env.*\n__pycache__/\n*.pyc\n*.sqlite*\n*.pdf\n')
@@ -23,6 +24,7 @@ Site : https://philocorpus.vercel.app
 ## Contenu
 
 - `public/` : site complet prêt à servir, avec les copies, leurs métadonnées, les références détectées, les textes commentés et les ressources de méthode.
+- `Textes_philosophiques/` : fichiers Markdown des œuvres et extraits fournis, préservés dans leur version originale.
 - `site/` : sources de l’application locale, exporteur statique et tests. Les outils Python attendent le corpus local et la base de l’atelier ; ils ne sont pas exécutés par Vercel.
 - `vercel.json` : déploiement statique du dossier `public`, sans dépendances à installer.
 
@@ -44,7 +46,7 @@ Depuis la racine du corpus original :
 python3 -B site/build_static.py
 python3 -B site/prepare_github.py
 cd deployment/github
-git add public site vercel.json README.md .gitignore
+git add public site Textes_philosophiques vercel.json README.md .gitignore
 git commit -m "Actualiser le corpus"
 git push origin main
 ```

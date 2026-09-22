@@ -7,6 +7,7 @@ Site : https://philocorpus.vercel.app
 ## Contenu
 
 - `public/` : site complet prêt à servir, avec les copies, leurs métadonnées, les références détectées, les textes commentés et les ressources de méthode.
+- `Textes_philosophiques/` : fichiers Markdown des œuvres et extraits fournis, préservés dans leur version originale.
 - `site/` : sources de l’application locale, exporteur statique et tests. Les outils Python attendent le corpus local et la base de l’atelier ; ils ne sont pas exécutés par Vercel.
 - `vercel.json` : déploiement statique du dossier `public`, sans dépendances à installer.
 
@@ -28,7 +29,7 @@ Depuis la racine du corpus original :
 python3 -B site/build_static.py
 python3 -B site/prepare_github.py
 cd deployment/github
-git add public site vercel.json README.md .gitignore
+git add public site Textes_philosophiques vercel.json README.md .gitignore
 git commit -m "Actualiser le corpus"
 git push origin main
 ```

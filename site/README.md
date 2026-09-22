@@ -91,3 +91,11 @@ Le lecteur des commentaires affiche le texte source au-dessus de la copie lorsqu
 Le catalogue `Textes_commentaires_de_textes/catalogue.json` relie explicitement les extraits aux identifiants des copies. `anthologie.json` contient les conversions Word sans rattachement présumé. La bibliothèque des commentaires propose un lien vers `#textes`, avec deux collections ; `#texte/<id>` ouvre un extrait seul et les copies associées. Les nouvelles API sont `/api/source-texts`, `/api/source-text?id=...` et `/api/source-pdf?id=...`. L’API document ajoute `commented_text` (objet ou null). Les notes de bas de page ont des identifiants distincts de ceux de la copie.
 
 Vérification : `python3 -B -m unittest discover -s site -p test_source_texts.py`.
+
+## Textes Philosophiques
+
+L’onglet principal `#textes-philosophiques` présente les Markdown de `Textes_philosophiques/` séparément des copies et des textes commentés. Recherche par auteur/titre, filtre de langue et lecteur `#oeuvre/<id>` avec sommaire et notes cliquables. Les textes longs sont chargés seulement à l’ouverture. Le corps Markdown est rendu sans réécriture ; seul le front matter de métadonnées est retiré de l’affichage. Le fichier exact et son empreinte restent présents dans les données exportées.
+
+`philosophical_texts.py` contient les métadonnées des sept textes initiaux. Tout nouveau `.md` du dossier est inclus à la prochaine génération, avec son nom de fichier comme titre par défaut ; compléter les métadonnées pour renseigner auteur et langue. Le sommaire utilise les titres Markdown déjà présents. L’étendue de l’édition est précisée pour Comte (1re et 2e leçons) ; le lecteur n’affirme pas que toutes les œuvres sont intégrales ni dans leur langue de première publication.
+
+Vérification : `python3 -B site/test_works_browser.py` sur l’export servi au port 8746, ou avec `PHILOCORPUS_SITE_URL` pour le site publié.

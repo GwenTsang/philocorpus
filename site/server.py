@@ -2,6 +2,7 @@
 """Site local PhiloCorpus, en lecture seule. Port distinct de l’atelier."""
 import argparse
 import source_texts
+import philosophical_texts
 import json
 from http.server import BaseHTTPRequestHandler,ThreadingHTTPServer
 from pathlib import Path
@@ -32,6 +33,8 @@ class Handler(BaseHTTPRequestHandler):
             name={'/':'index.html','/app.js':'app.js','/style.css':'style.css','/balance.js':'balance.js','/references.js':'references.js'}[u.path]
             mime={'/':'text/html; charset=utf-8','/app.js':'text/javascript; charset=utf-8','/style.css':'text/css; charset=utf-8','/balance.js':'text/javascript; charset=utf-8','/references.js':'text/javascript; charset=utf-8'}[u.path]
             return self.send((HERE/name).read_bytes(),mime)
+        if u.path=='/api/philosophical-texts':return self.send(philosophical_texts.entries())
+        if u.path=='/api/philosophical-text':return self.send(philosophical_texts.document(q['id'][0]))
         if u.path=='/api/source-texts':return self.send([source_texts.summary(e) for e in source_texts.entries()])
         if u.path=='/api/source-text':return self.send(source_texts.document(source_texts.get_source(q['id'][0])))
         if u.path=='/api/source-pdf':

@@ -22,12 +22,14 @@ async function route(){
  if(parts[0]==='laboratoire'&&!parts[1])parts.push('explorer');
  const canonical='#'+parts.join('/');if(location.hash!==canonical)history.replaceState(null,'',canonical);
  const name=parts[0],sub=parts[1];
- const activePage=name==='copie'?(catalog.find(c=>c.id===sub)?.genre==='commentaire'?'commentaires':'dissertations'):['textes','texte'].includes(name)?'commentaires':name;
+ const activePage=name==='oeuvre'?'textes-philosophiques':name==='copie'?(catalog.find(c=>c.id===sub)?.genre==='commentaire'?'commentaires':'dissertations'):['textes','texte'].includes(name)?'commentaires':name;
  $$('header nav a').forEach(a=>{const active=a.hash===`#${activePage}`;a.classList.toggle('active',active);if(active)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
  $('#main').innerHTML='<div class="loading">Chargement…</div>';window.scrollTo(0,0);
  try{
   if(name==='dissertations'||name==='commentaires'){libraryState.genre=name==='commentaires'?'commentaire':'dissertation';library();}
   else if(name==='copie')await reader(sub,token);
+  else if(name==='textes-philosophiques')await philosophicalLibrary(token);
+  else if(name==='oeuvre')await philosophicalReader(sub,token);
   else if(name==='textes')await sourceLibrary(token);
   else if(name==='texte')await sourceReader(sub,token);
   else if(name==='laboratoire'&&sub==='methode')method();
@@ -131,4 +133,17 @@ function referenceLaboratory(){
  for(const id of ['refExam','refYear','refGold','refMetric'])$('#'+id).onchange=draw;
  $('#refExport').onclick=()=>{const keys=['id','title','exam','year','grade','words','mentions','distinct','density'];const quote=v=>'"'+String(v??'').replaceAll('"','""')+'"';download('\ufeff'+[keys.map(quote).join(';'),...current.map(c=>keys.map(k=>quote(c[k])).join(';'))].join('\r\n'),'philocorpus-references-notes.csv','text/csv');};
  draw();
+}
+
+const workLanguages={fr:'Français',de:'Allemand',und:'Langue non renseignée'};
+async function philosophicalLibrary(token){
+ const works=await api('/api/philosophical-texts');if(token!==requestNo)return;
+ $('#main').innerHTML=`<div class="container">${intro('','Textes Philosophiques','Lire les œuvres et les extraits disponibles, dans les versions fournies en français ou en allemand.')}<div class="filters"><label class="grow">Auteur ou titre<input id="workSearch" type="search" placeholder="Descartes, Kant, esprit géométrique…"></label><label>Langue<select id="workLanguage"><option value="">Toutes les langues</option>${[...new Set(works.map(w=>w.language))].map(l=>`<option value="${esc(l)}">${esc(workLanguages[l]||l)}</option>`).join('')}</select></label></div><p id="workCount" class="muted" role="status"></p><div id="workResults" class="resource-grid"></div></div>`;
+ function draw(){const fold=s=>s.normalize('NFD').replace(/\p{M}/gu,'').toLocaleLowerCase('fr');const q=fold($('#workSearch').value),lang=$('#workLanguage').value;const selected=works.filter(w=>(!lang||w.language===lang)&&fold(w.author+' '+w.title).includes(q));$('#workCount').textContent=`${selected.length} texte(s)`;$('#workResults').innerHTML=selected.map(w=>`<a class="resource-card" href="#oeuvre/${encodeURIComponent(w.id)}"><p class="eyebrow">${esc(w.author)}</p><h2>${esc(w.title)}</h2><p>${esc(workLanguages[w.language]||w.language)}</p><span>Lire le texte →</span></a>`).join('')||'<p class="empty">Aucun texte pour ces critères.</p>';}
+ $('#workSearch').oninput=draw;$('#workLanguage').onchange=draw;draw();
+}
+async function philosophicalReader(id,token){
+ const w=await api('/api/philosophical-text?id='+encodeURIComponent(id));if(token!==requestNo)return;
+ $('#main').innerHTML=`<div class="container work-reader"><a href="#textes-philosophiques" class="muted">← Textes Philosophiques</a><div class="work-heading"><p>${esc(w.author)} · ${esc(workLanguages[w.language]||w.language)}</p><h1>${esc(w.title)}</h1></div>${w.toc.length?`<details class="work-contents"><summary>Sommaire</summary><nav aria-label="Sommaire de l’œuvre">${w.toc.map(t=>`<a data-work-anchor="${esc(t.id)}" href="#${esc(t.id)}" class="${t.level>2?'indent':''}">${esc(t.title)}</a>`).join('')}</nav></details>`:''}<article class="prose work-prose" lang="${esc(w.language)}">${w.html}</article><p><a href="#textes-philosophiques">← Tous les textes philosophiques</a></p></div>`;
+ $$('[data-work-anchor],.work-prose a[href^="#"]').forEach(a=>a.onclick=e=>{const target=document.getElementById(a.dataset.workAnchor||decodeURIComponent(a.getAttribute('href').slice(1)));if(target){e.preventDefault();target.scrollIntoView({behavior:'smooth'});}});
 }

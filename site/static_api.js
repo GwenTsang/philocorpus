@@ -2,7 +2,7 @@
 window.staticApi=async function(path){
  const url=new URL(path,location.origin),id=url.searchParams.get('id');
  async function get(file){const r=await fetch('/data/'+file,{cache:'no-cache'});if(!r.ok)throw Error('La ressource n’a pas pu être chargée.');return r.json();}
- const routes={'/api/catalog':'catalog.json','/api/source-texts':'sources.json','/api/document':'documents/'+encodeURIComponent(id)+'.json','/api/resource':'resources/'+encodeURIComponent(id)+'.json','/api/source-text':'sources/'+encodeURIComponent(id)+'.json'};
+ const routes={'/api/philosophical-texts':'works.json','/api/philosophical-text':'works/'+encodeURIComponent(id)+'.json','/api/catalog':'catalog.json','/api/source-texts':'sources.json','/api/document':'documents/'+encodeURIComponent(id)+'.json','/api/resource':'resources/'+encodeURIComponent(id)+'.json','/api/source-text':'sources/'+encodeURIComponent(id)+'.json'};
  if(routes[url.pathname])return get(routes[url.pathname]);
  if(url.pathname==='/api/scan')return {pages:0};
  if(url.pathname==='/api/search'){

@@ -5,6 +5,7 @@ from datetime import datetime,timezone
 from pathlib import Path
 from corpus import Corpus,plain
 import source_texts
+import philosophical_texts
 HERE=Path(__file__).resolve().parent
 OUT=HERE.parent/'deployment'/'vercel'
 PUBLIC=OUT/'public'
@@ -40,6 +41,8 @@ def main():
  for entry in entries:
   d=source_texts.document(entry);d['has_pdf']=False
   dump(PUBLIC/'data'/'sources'/(entry['id']+'.json'),d)
+ works=philosophical_texts.entries();dump(PUBLIC/'data'/'works.json',works)
+ for entry in works:dump(PUBLIC/'data'/'works'/(entry['id']+'.json'),philosophical_texts.document(entry['id']))
  files={str(p.relative_to(PUBLIC)):({'base64':base64.b64encode(p.read_bytes()).decode()} if p.suffix=='.woff' else p.read_text()) for p in sorted(PUBLIC.rglob('*')) if p.is_file()}
  assert not any(Path(n).suffix in ['.pdf','.sqlite3','.py'] for n in files)
  bundle=gzip.compress(json.dumps(files,separators=(',',':')).encode(),mtime=0)
@@ -49,6 +52,6 @@ def main():
  shutil.copy2(HERE/'unpack_snapshot.cjs',OUT/'build.cjs')
  dump(OUT/'vercel.json',{'$schema':'https://openapi.vercel.sh/vercel.json','framework':None,'buildCommand':'node build.cjs','installCommand':'','outputDirectory':'public','headers':[{'source':'/(.*)','headers':[{'key':'X-Content-Type-Options','value':'nosniff'}]}]})
  (OUT/'.vercelignore').write_text('public\n')
- report={'built_at':stamp,'copies':len(catalog),'source_texts':len(entries),'files':len(files),'public_bytes':sum(p.stat().st_size for p in PUBLIC.rglob('*') if p.is_file()),'compressed_bytes':len(bundle),'pdfs':0}
+ report={'built_at':stamp,'copies':len(catalog),'source_texts':len(entries),'philosophical_texts':len(works),'files':len(files),'public_bytes':sum(p.stat().st_size for p in PUBLIC.rglob('*') if p.is_file()),'compressed_bytes':len(bundle),'pdfs':0}
  dump(OUT.parent/'build-report.json',report);print(json.dumps(report))
 if __name__=='__main__':main()
