@@ -44,3 +44,4 @@ header nav{flex-wrap:wrap;column-gap:24px;row-gap:10px}.work-reader{max-width:10
 .method-reader-layout{display:block;max-width:820px;margin:28px auto}.method-reader-layout .resource-prose{max-width:none}.method-toc{margin-bottom:28px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:14px 0}.method-toc>summary{cursor:pointer;color:var(--green);font-size:15px}.method-toc .toc{position:static;display:block;max-height:45vh;margin-top:14px}.method-toc>summary:focus-visible{outline:3px solid #be9463;outline-offset:4px}
 
 .commentary-prose > p,.commentary-prose .copy-section > p{text-indent:2em}
+.copy-illustration{display:block;max-width:100%;width:auto;height:auto;margin:24px auto;text-indent:0}

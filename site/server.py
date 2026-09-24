@@ -9,7 +9,7 @@ from pathlib import Path
 from threading import RLock
 from urllib.parse import urlparse,parse_qs
 import pymupdf
-from corpus import Corpus, ROOT, resource_specs, fold, plain
+from corpus import Corpus, ROOT, resource_specs, fold, plain, illustration_path
 
 HERE=Path(__file__).resolve().parent
 corpus=Corpus();lock=RLock()
@@ -45,6 +45,12 @@ class Handler(BaseHTTPRequestHandler):
             docs=corpus.listing();return self.send({'copies':docs,'resources':corpus.resources(),'revision':corpus.stamp[0]})
         if u.path=='/api/resource':return self.send(corpus.resource(q['id'][0]))
         corpus.refresh()
+        if u.path.startswith('/copy-assets/'):
+            _,_,ident,name=u.path.split('/')
+            d=corpus.docs[ident]
+            if name!='schema.svg':raise KeyError('illustration')
+            path=illustration_path(d['directory'],d['illustrations']['schema'])
+            return self.send(path.read_bytes(),'image/svg+xml')
         if u.path=='/api/search':
             query=fold(q.get('q',[''])[0]);section=q.get('section',[''])[0];hits=[]
             if not query:return self.send([])

@@ -3,7 +3,7 @@
 import base64,gzip,json,shutil
 from datetime import datetime,timezone
 from pathlib import Path
-from corpus import Corpus,plain
+from corpus import Corpus,plain,illustration_path
 import source_texts
 import philosophical_texts
 HERE=Path(__file__).resolve().parent
@@ -30,6 +30,11 @@ def main():
  for c in catalog:
   c['has_scan']=False
   d=corpus.document(c['id']);d['has_scan']=False
+  for key,relative in d.get('illustrations',{}).items():
+   if key!='schema':continue
+   asset=PUBLIC/'copy-assets'/c['id']/'schema.svg'
+   asset.parent.mkdir(parents=True,exist_ok=True)
+   shutil.copy2(illustration_path(corpus.docs[c['id']]['directory'],relative),asset)
   if d.get('commented_text'):d['commented_text']['has_pdf']=False
   dump(PUBLIC/'data'/'documents'/(c['id']+'.json'),d)
   search.append({'id':d['id'],'title':d['title'],'text':plain(d['text']),'sections':{s['key']:plain(s['text']) for s in d['sections']}})

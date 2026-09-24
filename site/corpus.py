@@ -51,6 +51,20 @@ def render(text):
 def fold(text):
     return ''.join(c for c in unicodedata.normalize('NFD',text.casefold()) if not unicodedata.combining(c))
 
+def illustration_path(directory, relative):
+    path=(directory/relative).resolve()
+    if not path.is_relative_to(directory.resolve()) or path.suffix.lower()!='.svg' or not path.is_file():
+        raise ValueError('Illustration invalide')
+    return path
+
+def render_copy(text, document):
+    if 'schema' not in document.get('illustrations',{}):return render(text)
+    marker='PHILOCORPUS_SCHEMA_ILLUSTRATION'
+    text=re.sub(r'```integration_svg\s*```|<intégrer\s+schéma>',marker,text,flags=re.I)
+    rendered=render(text)
+    src=f'/copy-assets/{document["id"]}/schema.svg'
+    return rendered.replace(marker,f'<img class="copy-illustration" src="{html.escape(src,quote=True)}" alt="Schéma de la copie" loading="lazy">')
+
 def sections_from_state(state):
     text=state['text'];positions=utf16_positions(text)
     boundaries=sorted(state.get('boundaries',[]),key=lambda b:b['offset'])
@@ -119,6 +133,8 @@ class Corpus:
             item={'id':ident,'title':meta['title'],'exam':meta.get('exam'),'year':meta.get('year'),'grade':meta.get('grade'),'kind':meta.get('type_epreuve'),'context':meta.get('context'),'collection':d.parent.name,'gold':False,'source_kind':'scan','source_label':'Scan seul','sections':[],'text':'','revision':None,'saved_at':None,'warnings':[],'directory':d,'statistics':meta.get('exam_statistics'), 'boundaries':[]}
             is_commentary=any(w in d.name.casefold() for w in ('commentaire','explication'))
             item['genre']=meta.get('genre') or ('commentaire' if is_commentary else 'dissertation')
+            item['illustrations']=meta.get('illustrations',{})
+            for relative in item['illustrations'].values():illustration_path(d,relative)
             is_dissertation=item['genre']=='dissertation'
             item['dissertation']=is_dissertation
             authoritative=[p for p in (d/'transcriptions_json').glob('*.json') if not p.name.startswith('atelier__')]
@@ -165,8 +181,8 @@ class Corpus:
         result={k:v for k,v in d.items() if k not in ('directory','pdf','search')}
         entry=source_texts.source_for(ident) if d['genre']=='commentaire' else None
         result['commented_text']=source_texts.document(entry) if entry else None
-        result['html']=render(d['text'])
-        result['sections']=[dict(s,html=render(s['text'])) for s in d['sections']]
+        result['html']=render_copy(d['text'],d)
+        result['sections']=[dict(s,html=render_copy(s['text'],d)) for s in d['sections']]
         return result
     def resources(self):return [{'id':i,'title':t,'description':desc} for i,t,desc,_ in resource_specs()]
     def resource(self,ident):

@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="844" height="620" viewBox="0 0 844 620">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8.5" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M1.5,1.8 L8.5,5 M1.5,8.2 L8.5,5" fill="none" stroke="#000000" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <!-- axes -->
+  <g fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M168 427 L168 25" marker-end="url(#arrow)"/>
+    <path d="M168 427 L579 427" marker-end="url(#arrow)"/>
+  </g>
+
+  <!-- origine -->
+  <text x="132" y="460" font-family="Garamond, Palatino, serif" font-size="34" fill="#000000">0</text>
+
+  <!-- droites -->
+  <g fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round">
+    <path d="M171 423 L417 35"/>
+    <path d="M171 423 L555 41"/>
+  </g>
+
+  <!-- annotations -->
+  <g fill="#000000" font-family="Garamond, Palatino, serif">
+    <text x="14" y="58" font-size="31">nombre</text>
+    <text x="11" y="108" font-size="31">de</text>
+    <text x="8" y="162" font-size="31">connaissances</text>
+
+    <text x="240" y="88" font-size="31">par</text>
+    <text x="239" y="125" font-size="31">intensification</text>
+
+    <text x="548" y="86" font-size="31">par</text>
+    <text x="568" y="122" font-size="31">extension</text>
+
+
+    <text x="368" y="475" font-size="31">nombre d’expériences</text>
+    <text x="422" y="555" font-size="27" text-anchor="middle">Croissance du nombre de connaissances en fonction du nombre de parties.</text>
+  </g>
+</svg>

@@ -6,6 +6,16 @@ import unittest
 import corpus
 
 class CorpusTests(unittest.TestCase):
+    def test_copy_schema_keeps_surrounding_text_and_sections(self):
+        document={'id':'copy_test','illustrations':{'schema':'transcriptions_md/schema.svg'}}
+        for marker in ('<intégrer schéma>','```integration_svg\n```','```integration_svg ```'):
+            out=corpus.render_copy('Avant '+marker+' après.',document)
+            self.assertIn('Avant',out);self.assertIn('après.',out)
+            self.assertEqual(out.count('<img '),1)
+            self.assertIn('/copy-assets/copy_test/schema.svg',out)
+            self.assertNotIn('integration_svg',out)
+        self.assertNotIn('<img',corpus.render_copy('<intégrer schéma>',{'id':'other'}))
+
     def test_segmentation_preserves_nested_coincident_markers_and_unicode(self):
         chunks=['😀 Introduction\n','Annonce générale\n','Premier argument <u>livre</u>\n','Deuxième argument\n']
         offsets=[];n=0
